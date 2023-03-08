@@ -1,11 +1,44 @@
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 3001;
+const { Server } = require("socket.io");
 
-app.get("/", (req, res) => res.type('html').send(html));
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    cors: {
+      origin: ["*"],
+      methods: ["GET", "POST"],
+    },
+  },
+});
+
+app.get("/", (req, res) => res.type("html").send(html));
+
+io.on("connection", (socket) => {
+  console.log(socket.username + " has joined");
+
+  socket.on("sendMessage", (args) => {
+    console.log("LOG::: has message", args);
+    socket.broadcast.emit("hasMessage", args);
+  });
+  socket.on("listen", (args) => {
+    console.log(args);
+  });
+
+  socket.on("sendImage", (args) => {
+    console.log("image:", args);
+    socket.broadcast.emit("recieveImage", args);
+  });
+
+  socket.on("sendAudio", (args) => {
+    console.log("image:", args);
+    socket.broadcast.emit("recieveAudio", args);
+  });
+});
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
-
 
 const html = `
 <!DOCTYPE html>
@@ -56,4 +89,4 @@ const html = `
     </section>
   </body>
 </html>
-`
+`;
